@@ -55,7 +55,7 @@ This project demonstrates how to use Retrieval Augmented Generation (RAG) with t
 # Installing Dependencies
 
 ## 1. Poppler
-To install **Poppler**, which is a PDF rendering library.
+To install **Poppler** PDF rendering library.
 
 ### 1. **For Windows:**
 You need to download a precompiled version of Poppler and add it to your system’s PATH:
