@@ -30,24 +30,15 @@ def extract_data(docs):
     chunked_elements = chunk_by_title(
         elements,
         max_characters=500,
-        new_after_n_chars=1500,
-        combine_under_n_chars=200,
+        new_after_n_chars=2500,
         multipage_sections=True
     )
-
-    # Process the chunked elements
-    for chunk in chunked_elements:
-        print(f"Chunk Type: {chunk.type}")
-        print(f"Chunk Text: {chunk.text[:100]}...")  # Print first 100 characters
-        print(f"Page Number: {chunk.metadata.get('page_number')}")
-        print("---")
-        
     return chunked_elements
 
 # Get the embeddings of each text and add to an embeddings column in the dataframe
 def embed_fn(text):
     return genai.embed_content(model="models/embedding-001",
-                             content=text,
+                             content=str(text),
                              task_type="retrieval_document")["embedding"]
 
 def find_best_passage(query, text_embeddings):
@@ -59,11 +50,10 @@ def find_best_passage(query, text_embeddings):
     similarities = np.dot(text_embeddings['embeddings'].tolist(), query_embedding)
     best_passage_index = np.argmax(similarities)
     best_passage = text_embeddings.iloc[best_passage_index]['text']
-    print(best_passage)
+    print(f'Best passage: {best_passage}')
     return best_passage
 
 def make_prompt(query, relevant_passage):
-    relevant_passage = " ".join(relevant_passage)
     prompt = textwrap.dedent("""You are a helpful and informative bot that answers questions using text from the reference passage included below. \
     Be sure to respond in a complete sentence, being comprehensive, including all relevant background information. \
     However, you are talking to a non-technical audience, so be sure to break down complicated concepts and \
@@ -135,12 +125,24 @@ def main():
     with st.sidebar:
         st.subheader("Your documents")
         docs = st.file_uploader(
-            "Upload your PDF here and click on 'Process'", accept_multiple_files=True
+            "Upload your PDF here and click on 'Process'", accept_multiple_files=True, type=['pdf']
         )
+        
+        if docs:
+            saved_files = []
+            for doc in docs:
+                file_path = "./uploads/" + doc.name
+            os.makedirs("./uploads/", exist_ok=True)
+            with open(file_path, "wb") as f:
+                f.write(doc.getbuffer())
+            saved_files.append(file_path)
+            st.session_state.uploaded_files = saved_files
         if st.button("Process"):
             with st.spinner("Processing"):
-                texts = extract_data(docs)
-                df = pd.DataFrame({'text': texts, 'embeddings': [embed_fn(text) for text in texts]})
+                chunked_elements = extract_data(st.session_state.uploaded_files)
+                st.success("Files have been Chunked.")
+                df = pd.DataFrame({'text': chunked_elements, 'embeddings': [embed_fn(text) for text in chunked_elements]})
+                st.success("Embeddings have been successfully generated.")
                 st.session_state.embeddings = df
 
 if __name__ == "__main__":
