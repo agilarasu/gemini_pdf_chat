@@ -19,6 +19,7 @@ This project demonstrates how to use Retrieval Augmented Generation (RAG) with t
 - Pandas
 - NumPy
 - Unstructured
+- ONNX 1.16.1 (Higher versions lead to DLL errors)
 
 ## Installation
 
