@@ -1,4 +1,4 @@
-# Gemini PDF Talk
+# Gemini PDF Chat
 # Retrieval Augmented Generation using Gemini and Data from a PDF
 
 This project demonstrates how to use Retrieval Augmented Generation (RAG) with the Gemini API to extract and process data from PDF documents. The application allows users to upload PDFs, extract text, and interact with the content using a conversational interface.
